@@ -10,6 +10,7 @@ class AirportRepository extends AbstractRepository
     private const CODE_DATA_KEY = 'code';
     private const NAME_DATA_KEY = 'name';
     private const CITY_DATA_KEY = 'city';
+    private const TIMEZONE_DATA_KEY = 'timeZone';
 
     private JsonParser $jsonParser;
 
@@ -45,7 +46,8 @@ class AirportRepository extends AbstractRepository
         return new Airport(
             $airportData[self::CODE_DATA_KEY],
             $airportData[self::NAME_DATA_KEY],
-            $airportData[self::CITY_DATA_KEY]
+            $airportData[self::CITY_DATA_KEY],
+            $airportData[self::TIMEZONE_DATA_KEY]
         );
     }
 
