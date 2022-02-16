@@ -38,6 +38,33 @@ class Flight
     }
 
     /**
+     * Высчитывает полную продолжительность полёта (учитывая часовые пояса) в минутах.
+     * @return int Продолжительность полёта в минутах.
+     */
+    public function calculateDurationMinutes(): int
+    {
+        $fromTimeMinutes = $this->calculateMinutesFromStartDay($this->fromTime);
+        $toTimeMinutes = $this->calculateMinutesFromStartDay($this->toTime);
+
+        $duration = $fromTimeMinutes - $toTimeMinutes;
+
+        // если разница получилась неотрицательная, мы должны отнять ее от количества минут в сутках - 1440
+        if ($duration > 0) {
+            $duration = 1440 - $duration;
+        }
+
+        $TZDifference = $this->calculateTZDifference($this->fromAirport->getTimeZone(), $this->toAirport->getTimeZone());
+
+        $fullDuration = $duration + $TZDifference;
+
+        // перелеты, которые проходят в рамках одного дня и заканчивающиеся до полуночи,
+        // имеют отрицательный $duration, вследствие этого приходится умножать число на -1
+        if ($fullDuration < 0) $fullDuration *= -1;
+
+        return $fullDuration;
+    }
+
+    /**
      * Высчитывает разницу между часовыми поясами.
      * @param string $fromTZ Часовой пояс аэропорта вылета.
      * @param string $toTZ Часовой пояс аэропорта назначения.
