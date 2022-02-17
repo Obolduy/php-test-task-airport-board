@@ -73,7 +73,7 @@ class ShowAirportBoardCommand extends Command
         $totalDuration = array_sum(
             array_map(
                 function(Flight $flight): int {
-                    return $flight->calculateDurationMinutes();
+                    return $flight->getFullDuration();
                 },
                 $flights
             )
@@ -101,10 +101,12 @@ class ShowAirportBoardCommand extends Command
                 return [
                     '#' => $rowIndex++,
                     'from' => $this->buildAirportTitle($flight->getFromAirport()),
-                    'from time' => $flight->getFromTime(),
+                    'departing time (departure local time)' => $flight->getFromTime(),
+                    'departing time (destination local time)' => $flight->calculateNonLocalDepartureTime(),
                     'to' => $this->buildAirportTitle($flight->getToAirport()),
-                    'to time' => $flight->getToTime(),
-                    'duration' => new DurationHumanFormatter($flight->calculateDurationMinutes()),
+                    'arriving time (departure local time)' => $flight->calculateLocalArrivingTime(),
+                    'arriving time (destination local time)' => $flight->getToTime(),
+                    'duration' => new DurationHumanFormatter($flight->getFullDuration())
                 ];
             },
             $flights
