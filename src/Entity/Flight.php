@@ -91,6 +91,22 @@ class Flight
     }
 
     /**
+     * Вычисляет время полета без учета часовых зон.
+     * @return int Продолжительность полёта без часовых зон в минутах.
+     */
+    public function calculateRawDuration(): int
+    {
+        $duration = $this->calculateMinutesFromStartDay($this->fromTime) - $this->calculateMinutesFromStartDay($this->toTime);
+
+        // если разница получилась неотрицательная, мы должны отнять ее от количества минут в сутках - 1440
+        if ($duration > 0) {
+            $duration = 1440 - $duration;
+        }
+
+        return $duration;
+    }
+
+    /**
      * Высчитывает разницу между часовыми поясами.
      * @param string $fromTZ Часовой пояс аэропорта вылета.
      * @param string $toTZ Часовой пояс аэропорта назначения.
