@@ -60,27 +60,32 @@ class Flight
 
     /**
      * Высчитывает полную продолжительность полёта (учитывая часовые пояса) в минутах.
-     * @return int Продолжительность полёта в минутах.
+     * @return int полная продолжительность полета, включая часовые пояса.
      */
     public function calculateDurationMinutes(): int
     {
-        $fromTimeMinutes = $this->calculateMinutesFromStartDay($this->fromTime);
-        $toTimeMinutes = $this->calculateMinutesFromStartDay($this->toTime);
-
-        $duration = $fromTimeMinutes - $toTimeMinutes;
-
-        // если разница получилась неотрицательная, мы должны отнять ее от количества минут в сутках - 1440
-        if ($duration > 0) {
-            $duration = 1440 - $duration;
-        }
+        $duration = $this->calculateRawDuration();
 
         $TZDifference = $this->calculateTZDifference($this->fromAirport->getTimeZone(), $this->toAirport->getTimeZone());
 
         $fullDuration = $duration + $TZDifference;
 
-        // перелеты, которые проходят в рамках одного дня и заканчивающиеся до полуночи,
+        // Перелеты, которые проходят в рамках одного дня и заканчивающиеся до полуночи,
         // имеют отрицательный $duration, вследствие этого приходится умножать число на -1
         if ($fullDuration < 0) $fullDuration *= -1;
+
+        // Если хоть один из часовых поясов - отрицательный, тогда мы отнимаем от суток
+        // разницу часовых поясов, таким образом "грубая разница" будет равняться этой разности,
+        // однако, по факту, "настоящая разница" может достигать при определенных обстоятельствах и 23 часов, но в силу того,
+        // что формат времени отправления подразумевает только часы и минуты, эти подробности опускаются
+        // и возвращается "грубая разница"
+        if ($this->fromTZ < 0 || $this->toTZ < 0) {
+            $difference = 1440 - abs($TZDifference);
+
+            if ($TZDifference < 0) $difference *= -1;
+
+            $fullDuration = $duration + $difference;
+        }
 
         return $fullDuration;
     }
