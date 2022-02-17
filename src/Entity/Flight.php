@@ -114,8 +114,8 @@ class Flight
      */
     public function calculateTZDifference(string $fromTZ, string $toTZ): int
     {
-        $this->toTZ = (int)substr($toTZ, -3, 3);
-        $this->fromTZ = (int)substr($fromTZ, -3, 3);
+        $this->toTZ = (int)substr($toTZ, 3, 3);
+        $this->fromTZ = (int)substr($fromTZ, 3, 3);
 
         // Если оба пояса находятся к востоку от Гринвича, мы находим их разность
         if ($this->fromTZ > 0 && $this->toTZ > 0) {
