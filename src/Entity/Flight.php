@@ -112,21 +112,25 @@ class Flight
      * @param string $toTZ Часовой пояс аэропорта назначения.
      * @return int Разность часовых поясов.
      */
-    private function calculateTZDifference(string $fromTZ, string $toTZ): int
+    public function calculateTZDifference(string $fromTZ, string $toTZ): int
     {
-        $toTZ = (int)substr($toTZ, -3, 3);
-        $fromTZ = (int)substr($fromTZ, -3, 3);
+        $this->toTZ = (int)substr($toTZ, -3, 3);
+        $this->fromTZ = (int)substr($fromTZ, -3, 3);
 
-        // Из-за того, что мы находим разность TZ, мы должны считать модули чисел
-        $toTZ = ($toTZ > 0) ? $toTZ : -$toTZ;
-        $fromTZ = ($fromTZ > 0) ? $fromTZ : -$fromTZ;
+        // Если оба пояса находятся к востоку от Гринвича, мы находим их разность
+        if ($this->fromTZ > 0 && $this->toTZ > 0) {
+            $TZ = $this->toTZ - $this->fromTZ;
+        }
 
-        $difference = 60 * ($toTZ - $fromTZ);
+        $TZ = $TZ ?? abs($this->toTZ) + abs($this->fromTZ);
+        
+        $difference = 60 * $TZ;
 
-        // Если разность TZ не попадает в промежуток от 720 до -720,
-        // мы должны уменьшить или увеличить число на 720 минут (12 часов).
-        if ($difference > 720) $difference -= 720;
-        if ($difference < -720) $difference += 720;
+        // если аэропорт отправления расположен западнее Гринвича, делим число на -1,
+        // потому что до этого мы искали модули чисел, игнорируя, что уменьшаемое число могло быть отрицательным
+        if ($this->toTZ < 0) {
+            $difference *= -1;
+        }
 
         return $difference;
     }
