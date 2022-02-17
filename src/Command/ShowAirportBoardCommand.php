@@ -46,6 +46,7 @@ class ShowAirportBoardCommand extends Command
 
         $flights = $this->flightRepository->getAll();
 
+        $this->showTechInformation($flights);
         $this->showTotalInformation($flights);
         $this->showFlightInformation($flights);
 
@@ -87,6 +88,32 @@ class ShowAirportBoardCommand extends Command
                 new DurationHumanFormatter($avgDuration)
             )
         );
+    }
+
+    /**
+     * @param Flight[] $flights
+     * @return void
+     */
+    private function showTechInformation(array $flights): void
+    {
+        if(!count($flights)) {
+            return;
+        }
+
+        $counter = 1;
+        foreach ($flights as $flight) {
+            $this->io->info(
+                sprintf(
+                    '#%d Raw fly duration: %s, departure TZ: %d, arrive TZ: %d, TZ difference: %s.',
+                    $counter++,
+                    new DurationHumanFormatter($flight->calculateRawDuration()),
+                    $flight->getFromTZ(),
+                    $flight->getToTZ(),
+                    new DurationHumanFormatter($flight->calculateTZDifference($flight->getFromAirport()->getTimeZone(), $flight->getToAirport()->getTimeZone()))
+                )
+            );
+        }
+        
     }
 
     /**
