@@ -135,6 +135,29 @@ class Flight
         return $difference;
     }
 
+    /**
+     * Вычисляет время отправления самолета по часовому поясу места прибытия
+     * @return int Время отправления.
+     */
+    public function calculateNonLocalDepartureTime()
+    {
+        $tz = $this->calculateTZDifference($this->fromAirport->getTimeZone(), $this->toAirport->getTimeZone());
+        $fromTime = $this->getFromTime();
+
+        $fromTime = new DateTime($fromTime);
+
+        if ($this->fromTZ > 0) $fromTime->modify("$tz minutes");
+
+        // если точка отправления меньше 0, находим положительную разность между 24 часами и этой точкой
+        if ($this->fromTZ < 0) {
+            $tz = (1440 - $tz) * -1;
+
+            $fromTime->modify("$tz minutes");
+        }
+
+        return $fromTime->format('H:i');
+    }
+
     private function calculateMinutesFromStartDay(string $time): int
     {
         [$hour, $minutes] = explode(':', $time, 2);
