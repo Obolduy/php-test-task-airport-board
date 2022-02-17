@@ -158,6 +158,21 @@ class Flight
         return $fromTime->format('H:i');
     }
 
+    /**
+     * Вычисляет время прибытия самолета по часовому поясу места отправления
+     * @return int Время прибытия.
+     */
+    public function calculateLocalArrivingTime()
+    {
+        $tz = $this->calculateTZDifference($this->fromAirport->getTimeZone(), $this->toAirport->getTimeZone());
+        $toTime = $this->getToTime();
+
+        $toTime = new DateTime($toTime);
+        $toTime->modify("-$tz minutes");
+
+        return $toTime->format('H:i');
+    }
+
     private function calculateMinutesFromStartDay(string $time): int
     {
         [$hour, $minutes] = explode(':', $time, 2);
