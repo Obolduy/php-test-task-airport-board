@@ -2,12 +2,17 @@
 
 namespace App\Entity;
 
+use DateTime;
+
 class Flight
 {
     private Airport $fromAirport;
     private string $fromTime;
     private Airport $toAirport;
     private string $toTime;
+    private int $fullDuration;
+    private string $fromTZ;
+    private string $toTZ;
 
     public function __construct(Airport $fromAirport, string $fromTime, Airport $toAirport, string $toTime)
     {
@@ -15,6 +20,7 @@ class Flight
         $this->fromTime = $fromTime;
         $this->toAirport = $toAirport;
         $this->toTime = $toTime;
+        $this->fullDuration = $this->calculateDurationMinutes();
     }
 
     public function getFromAirport(): Airport
@@ -35,6 +41,21 @@ class Flight
     public function getToTime(): string
     {
         return $this->toTime;
+    }
+
+    public function getFullDuration(): string
+    {
+        return $this->fullDuration;
+    }
+
+    public function getFromTZ(): string
+    {
+        return $this->fromTZ;
+    }
+
+    public function getToTZ(): string
+    {
+        return $this->toTZ;
     }
 
     /**
